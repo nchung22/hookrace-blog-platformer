@@ -1,5 +1,6 @@
 import sys
 import sdl2.ext
+from time import time
 from enum import Enum, auto
 from sdl2 import SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL
 from collections import namedtuple
@@ -14,15 +15,18 @@ BodyPart = namedtuple('BodyPart', ['source', 'dest', 'flip'])
 
 
 class Point2d:
-    x: int
-    y: int
+    x: float
+    y: float
 
-    def __init__(self, x, y):
+    def __init__(self, x: float, y: float) -> None:
         self.x = x
         self.y = y
 
     def __sub__(self, other):
         return Point2d(self.x - other.x, self.y - other.y)
+
+    def __add__(self, other):
+        return Point2d(self.x + other.x, self.y + other.y)
 
 
 class Input(Enum):
@@ -46,6 +50,10 @@ class Player:
     def restart(self):
         self.pos = Point2d(170, 500)
         self.vel = Point2d(0, 0)
+
+
+TILES_PER_ROW = 16
+TILE_SIZE = Point2d(64, 64)
 
 
 class Map:
@@ -107,6 +115,12 @@ class Game:
             elif event.type == sdl2.SDL_KEYUP:
                 self.inputs[to_input(event.key.keysym.sym)] = False
 
+    def physics(self) -> None:
+        if self.inputs[Input.RESTART]:
+            self.player.restart()
+        self.player.vel.y += 0.75  # gravity
+        self.player.pos += self.player.vel
+
     def render(self) -> None:
         # Draw over all drawings of the last frame with the default color
         self.renderer.clear()
@@ -116,14 +130,15 @@ class Game:
             self.player.texture,
             self.player.pos - self.camera
         )
+        render_map(self.renderer, self.map, self.camera)
         # Show the result on screen
         self.renderer.present()
 
 
 def render_tee(renderer: sdl2.ext.Renderer, texture: sdl2.ext.TextureSprite,
                pos: Point2d):
-    x = pos.x
-    y = pos.y
+    x = int(pos.x)
+    y = int(pos.y)
 
     body_parts = [
         BodyPart(Rect(192, 64, 64, 32), Rect(x - 60, y, 96, 48),
@@ -146,6 +161,20 @@ def render_tee(renderer: sdl2.ext.Renderer, texture: sdl2.ext.TextureSprite,
     for part in body_parts:
         renderer.copy(texture, part.source, part.dest, angle=0.0,
                       center=None, flip=part.flip)
+
+
+def render_map(renderer: sdl2.ext.Renderer, map: Map, camera: Point2d):
+    for i, tile_nr in enumerate(map.tiles):
+        if tile_nr == 0:
+            continue
+        clip_x = (tile_nr % TILES_PER_ROW) * TILE_SIZE.x
+        clip_y = int(tile_nr / TILES_PER_ROW) * TILE_SIZE.y
+        dest_x = (i % map.width) * TILE_SIZE.x
+        dest_y = int(i / map.width) * TILE_SIZE.y
+
+        clip = Rect(clip_x, clip_y, TILE_SIZE.x, TILE_SIZE.y)
+        dest = Rect(dest_x, dest_y, TILE_SIZE.x, TILE_SIZE.y)
+        renderer.copy(map.texture, clip, dest)
 
 
 def to_input(key):
@@ -179,9 +208,17 @@ def main() -> int:
 
     game = Game(renderer)
 
+    start_time = time()
+    last_tick = 0
     # Game loop, draws each frame
     while not game.inputs[Input.QUIT]:
         game.handle_input()
+
+        new_tick = int((time() - start_time) * 50)
+        for tick in range(last_tick, new_tick):
+            game.physics()
+        last_tick = new_tick
+
         game.render()
 
     sdl2.ext.quit()
