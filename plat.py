@@ -72,6 +72,7 @@ class Collision(Enum):
 TILES_PER_ROW = 16
 TILE_SIZE = Point2d(64, 64)
 PLAYER_SIZE = Point2d(64, 64)
+WINDOW_SIZE = Point2d(1280, 720)
 
 AIR = 0
 START = 78
@@ -137,7 +138,7 @@ class Map:
 
         result: Set[Collision] = set()
         if distance < 0:
-            return result
+            return result, pos, vel
 
         fraction = 1.0 / float(maximum + 1)
 
@@ -223,6 +224,18 @@ class Game:
         )
         # self.player.pos += self.player.vel
 
+    def move_camera(self):
+        half_win = WINDOW_SIZE.x / 2
+        # 1. always in center:
+        self.camera.x = self.player.pos.x - half_win
+        # 2. follow once leaves center:
+        left_area = self.player.pos.x - half_win - 100
+        right_area = self.player.pos.x - half_win + 100
+        # self.camera.x = min(max(self.camera.x, left_area), right_area)
+        # 3. fluid
+        dist = self.camera.x - self.player.pos.x + half_win
+        # self.camera.x -= 0.05 * dist
+
     def render(self) -> None:
         # Draw over all drawings of the last frame with the default color
         self.renderer.clear()
@@ -271,8 +284,8 @@ def render_map(renderer: sdl2.ext.Renderer, map: Map, camera: Vector2d):
             continue
         clip_x = (tile_nr % TILES_PER_ROW) * TILE_SIZE.x
         clip_y = int(tile_nr / TILES_PER_ROW) * TILE_SIZE.y
-        dest_x = (i % map.width) * TILE_SIZE.x
-        dest_y = int(i / map.width) * TILE_SIZE.y
+        dest_x = (i % map.width) * TILE_SIZE.x - int(camera.x)
+        dest_y = int(i / map.width) * TILE_SIZE.y - int(camera.y)
 
         clip = Rect(clip_x, clip_y, TILE_SIZE.x, TILE_SIZE.y)
         dest = Rect(dest_x, dest_y, TILE_SIZE.x, TILE_SIZE.y)
@@ -297,7 +310,7 @@ def to_input(key):
 def main() -> int:
     sdl2.ext.init()
 
-    window = sdl2.ext.Window("Our own 2D platformer", size=(1280, 720))
+    window = sdl2.ext.Window("Our own 2D platformer", size=(WINDOW_SIZE.x, WINDOW_SIZE.y))
     window.show()
 
     renderer = sdl2.ext.Renderer(
@@ -319,6 +332,7 @@ def main() -> int:
         new_tick = int((time() - start_time) * 50)
         for tick in range(last_tick, new_tick):
             game.physics()
+            game.move_camera()
         last_tick = new_tick
 
         game.render()
