@@ -18,4 +18,4 @@ processor = sdl2.ext.TestEventProcessor()
 processor.run(window)
 
 sdl2.ext.quit()
-
+sys.exit(0)

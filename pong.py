@@ -2,6 +2,7 @@ import sys
 import sdl2
 import sdl2.ext
 
+
 def run():
     sdl2.ext.init()
     window = sdl2.ext.Window("The Pong Game", size=(800, 600))
@@ -15,6 +16,7 @@ def run():
                 break
         window.refresh()
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(run())
