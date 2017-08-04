@@ -48,13 +48,26 @@ class Input(Enum):
     QUIT = auto()
 
 
+class Time:
+    begin: int
+    finish: int
+    best: int
+
+    def __init__(self):
+        self.begin = -1
+        self.finish = -1
+        self.best = -1
+
+
 class Player:
     texture: sdl2.ext.TextureSprite
     pos: Point2d
     vel: Vector2d
+    time: Time
 
     def __init__(self, texture: sdl2.ext.TextureSprite) -> None:
         self.texture = texture
+        self.time = Time()
         self.pos = None
         self.vel = None
         self.restart()
@@ -62,6 +75,8 @@ class Player:
     def restart(self):
         self.pos = Point2d(170, 500)
         self.vel = Vector2d(0, 0)
+        self.time.begin = -1
+        self.time.finish = -1
 
 
 class Collision(Enum):
@@ -106,17 +121,20 @@ class Map:
             self.width = width
             self.height += 1
 
-    def get_tile(self, x: int, y: int) -> int:
+    def __get_tile(self, x: int, y: int) -> int:
         nx = min(max(int(x / TILE_SIZE.x), 0), self.width - 1)
         ny = min(max(int(y / TILE_SIZE.y), 0), self.height - 1)
         pos = ny * self.width + nx
         return self.tiles[pos]
 
-    def is_tile_solid(self, x: int, y: int) -> bool:
-        return self.get_tile(x, y) not in {AIR, START, FINISH}
+    def get_tile(self, pos: Point2d) -> int:
+        return self.__get_tile(int(round(pos.x)), int(round(pos.y)))
 
-    def is_solid(self, point: Point2d) -> bool:
-        return self.is_tile_solid(int(round(point.x)), int(round(point.y)))
+    def __is_solid(self, x: int, y: int) -> bool:
+        return self.__get_tile(x, y) not in {AIR, START, FINISH}
+
+    def is_solid(self, pos: Point2d) -> bool:
+        return self.__is_solid(int(round(pos.x)), int(round(pos.y)))
 
     def on_ground(self, pos: Point2d, size: Vector2d) -> bool:
         size = size * 0.5
@@ -224,7 +242,7 @@ class Game:
         )
         # self.player.pos += self.player.vel
 
-    def move_camera(self):
+    def move_camera(self) -> None:
         half_win = WINDOW_SIZE.x / 2
         # 1. always in center:
         self.camera.x = self.player.pos.x - half_win
@@ -235,6 +253,19 @@ class Game:
         # 3. fluid
         dist = self.camera.x - self.player.pos.x + half_win
         # self.camera.x -= 0.05 * dist
+
+    def logic(self, tick: int) -> None:
+        player_time = self.player.time
+        player_tile = self.map.get_tile(self.player.pos)
+        if player_tile == START:
+            player_time.begin = tick
+        elif player_tile == FINISH:
+            if player_time.begin >= 0:
+                player_time.finish = tick - player_time.begin
+                player_time.begin = -1
+                if player_time.best < 0 or player_time.finish < player_time.best:
+                    player_time.best = player_time.finish
+                print("Finished in " + str(player_time.finish) + " ticks")
 
     def render(self) -> None:
         # Draw over all drawings of the last frame with the default color
@@ -333,6 +364,7 @@ def main() -> int:
         for tick in range(last_tick, new_tick):
             game.physics()
             game.move_camera()
+            game.logic(tick)
         last_tick = new_tick
 
         game.render()
