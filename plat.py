@@ -3,7 +3,7 @@ import sdl2.ext
 from math import sqrt
 from time import time
 from typing import List, Set, Tuple
-from enum import Enum, auto
+from enum import Enum
 from sdl2 import SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL, SDL_KEYDOWN, SDL_KEYUP, SDL_QUIT, SDL_RENDERER_ACCELERATED, SDL_RENDERER_PRESENTVSYNC
 from sdl2.ext import Color, FontManager, Renderer, Resources, SpriteFactory, TextureSprite, Window
 from collections import namedtuple
@@ -15,9 +15,6 @@ BodyPart = namedtuple("BodyPart", ["source", "dest", "flip"])
 
 
 class Point2d:
-    x: float
-    y: float
-
     def __init__(self, x: float, y: float) -> None:
         self.x = x
         self.y = y
@@ -38,19 +35,15 @@ Vector2d = Point2d
 
 
 class Input(Enum):
-    NONE = auto()
-    LEFT = auto()
-    RIGHT = auto()
-    JUMP = auto()
-    RESTART = auto()
-    QUIT = auto()
+    NONE = 1
+    LEFT = 2
+    RIGHT = 3
+    JUMP = 4
+    RESTART = 5
+    QUIT = 6
 
 
 class Time:
-    begin: int
-    finish: int
-    best: int
-
     def __init__(self):
         self.begin = -1
         self.finish = -1
@@ -58,10 +51,6 @@ class Time:
 
 
 class CacheLine:
-    texture: TextureSprite
-    w: int
-    h: int
-
     def __init__(self, texture: TextureSprite, w: int, h: int) -> None:
         self.texture = texture
         self.w = w
@@ -69,25 +58,17 @@ class CacheLine:
 
 
 class TextCache:
-    text: str
-    cache: CacheLine
-
     def __init__(self):
         self.text = ""
-        self.cache = None
+        self.cache = None  # type: CacheLine
 
 
 class Player:
-    texture: TextureSprite
-    pos: Point2d
-    vel: Vector2d
-    time: Time
-
     def __init__(self, texture: TextureSprite) -> None:
         self.texture = texture
         self.time = Time()
-        self.pos = None
-        self.vel = None
+        self.pos = None  # type: Point2d
+        self.vel = None  # type: Vector2d
         self.restart()
 
     def restart(self):
@@ -98,9 +79,9 @@ class Player:
 
 
 class Collision(Enum):
-    X = auto()
-    Y = auto()
-    CORNER = auto()
+    X = 1
+    Y = 2
+    CORNER = 3
 
 TILES_PER_ROW = 16
 TILE_SIZE = Point2d(64, 64)
@@ -113,14 +94,9 @@ FINISH = 110
 
 
 class Map:
-    texture: TextureSprite
-    width: int
-    height: int
-    tiles: List[int]
-
     def __init__(self, texture: TextureSprite, file_name: str) -> None:
         self.texture = texture
-        self.tiles = []
+        self.tiles = []  # type: List[int]
         self.width = 0
         self.height = 0
 
@@ -172,7 +148,7 @@ class Map:
         distance = vel.len()
         maximum = int(distance)
 
-        result: Set[Collision] = set()
+        result = set()  # type: Set[Collision]
         if distance < 0:
             return result, pos, vel
 
@@ -205,24 +181,17 @@ class Map:
 
 
 class Game:
-    inputs = {
-        Input.NONE: False,
-        Input.LEFT: False,
-        Input.RIGHT: False,
-        Input.JUMP: False,
-        Input.RESTART: False,
-        Input.QUIT: False
-    }
-    renderer: Renderer
-    font: FontManager
-    player: Player
-    map: Map
-    camera: Vector2d
-    tc_timer: TextCache
-    tc_best_time: TextCache
-
     def __init__(self, renderer: Renderer) -> None:
         self.renderer = renderer
+
+        self.inputs = {
+            Input.NONE: False,
+            Input.LEFT: False,
+            Input.RIGHT: False,
+            Input.JUMP: False,
+            Input.RESTART: False,
+            Input.QUIT: False
+        }
 
         # load resources
         resources = Resources(__file__, "resources")
@@ -231,7 +200,7 @@ class Game:
         self.player = Player(factory.from_image(resources.get_path("player.png")))
         self.map = Map(factory.from_image(resources.get_path("grass.png")),
                        resources.get_path("default.map"))
-        self.camera = Point2d(0, 0)
+        self.camera = Vector2d(0, 0)
         self.tc_timer = TextCache()
         self.tc_best_time = TextCache()
 
@@ -385,10 +354,12 @@ def render_text(
     surface = font.render(text, color=color)
     # TODO: surface.setSurfaceAlphaMod
 
+    width = surface.w
+    height = surface.h
     factory = SpriteFactory(sdl2.ext.TEXTURE, renderer=renderer)
     texture = factory.from_surface(surface, free=True)
 
-    return CacheLine(texture, surface.w, surface.h)
+    return CacheLine(texture, width, height)
 
 
 def to_input(key):
