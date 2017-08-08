@@ -1,27 +1,27 @@
 from basic2d import Point2d, Vector2d
+from copy import copy
 from sdl2 import SDL_FLIP_HORIZONTAL, SDL_FLIP_NONE
 from sdl2.ext import Renderer, Resources, SpriteFactory, TextureSprite
 from tilemap import Map
-from typing import Tuple
-
-
-Rect = Tuple[int, int, int, int]
+from typing import Optional
 
 
 PLAYER_SIZE = Vector2d(64, 64)
+INITIAL_POS = Point2d(170, 500)
+INITIAL_VEL = Vector2d(0, 0)
 
 
 class Player:
     def __init__(self, resources: Resources) -> None:
-        self.texture = None  # type: TextureSprite
+        self.texture = None  # type: Optional[TextureSprite]
         self.texture_path = resources.get_path("player.png")
-        self.pos = None  # type: Point2d
-        self.vel = None  # type: Vector2d
+        self.pos = copy(INITIAL_POS)
+        self.vel = copy(INITIAL_VEL)
         self.restart()
 
     def restart(self) -> None:
-        self.pos = Point2d(170, 500)
-        self.vel = Vector2d(0, 0)
+        self.pos = copy(INITIAL_POS)
+        self.vel = copy(INITIAL_VEL)
 
     def on_ground(self, tilemap: Map) -> bool:
         return tilemap.on_ground(self.pos, PLAYER_SIZE)
@@ -34,8 +34,9 @@ class Player:
     def render(self, renderer: Renderer, camera: Vector2d) -> None:
         if self.texture is None:
             factory = SpriteFactory(renderer=renderer)
-            print(f"loading texture: {self.texture_path}")
-            self.texture = factory.from_image(self.texture_path)  # type: TextureSprite
+            self.texture = factory.from_image(self.texture_path)
+        texture = self.texture  # type: TextureSprite
+
         pos = self.pos - camera
         x = int(pos.x)
         y = int(pos.y)
@@ -59,5 +60,5 @@ class Player:
              SDL_FLIP_HORIZONTAL)  # right eye
         ]
         for source, dest, flip in body_parts:
-            renderer.copy(self.texture, source, dest, angle=0,
+            renderer.copy(texture, source, dest, angle=0,
                           center=None, flip=flip)

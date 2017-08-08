@@ -1,7 +1,7 @@
 from basic2d import Point2d, Vector2d
 from enum import Enum, IntEnum
 from sdl2.ext import Renderer, Resources, SpriteFactory, TextureSprite
-from typing import List, NamedTuple, Tuple
+from typing import List, NamedTuple, Optional, Tuple
 
 
 Size = NamedTuple('Size', [('w', int),
@@ -27,7 +27,7 @@ class Collision(Enum):
 
 class Map:
     def __init__(self, resources: Resources) -> None:
-        self.texture = None  # type: TextureSprite
+        self.texture = None  # type: Optional[TextureSprite]
         self.texture_path = resources.get_path("grass.png")
         self.tiles = []  # type: List[int]
         self.width = 0
@@ -113,7 +113,9 @@ class Map:
         if self.texture is None:
             factory = SpriteFactory(renderer=renderer)
             print(f"loading texture: {self.texture_path}")
-            self.texture = factory.from_image(self.texture_path)  # type: TextureSprite
+            self.texture = factory.from_image(self.texture_path)
+        texture = self.texture  # type: TextureSprite
+
         for i, tile_nr in enumerate(self.tiles):
             if tile_nr == 0:
                 continue
@@ -124,5 +126,5 @@ class Map:
 
             clip = (clip_x, clip_y, TILE_SIZE.w, TILE_SIZE.h)
             dest = (dest_x, dest_y, TILE_SIZE.w, TILE_SIZE.h)
-            renderer.copy(self.texture, clip, dest)
+            renderer.copy(texture, clip, dest)
 

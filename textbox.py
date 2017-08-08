@@ -1,5 +1,6 @@
 from sdl2 import SDL_FLIP_NONE
 from sdl2.ext import Color, FontManager, Renderer, SpriteFactory, TextureSprite
+from typing import Optional
 
 
 class CacheLine:
@@ -17,7 +18,7 @@ class TextBox:
         self.x = x
         self.y = y
         self.color = color
-        self.cache = None  # type: CacheLine
+        self.cache = None  # type: Optional[CacheLine]
 
     def render(self, renderer: Renderer):
         if self.cache is None or self.text != self.cache.text:

@@ -28,3 +28,5 @@ class Point2d:
     def __add__(self, other: Vector2d):
         return Point2d(self.x + other.x, self.y + other.y)
 
+    def __copy__(self):
+        return Point2d(self.x, self.y)

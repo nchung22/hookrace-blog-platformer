@@ -31,7 +31,6 @@ class Game:
         if self.controller.has_input(Input.JUMP):
             if ground:
                 new_vel.y = -21
-
         new_vel.y += 0.75  # gravity
 
         # new x velocity...
@@ -40,7 +39,6 @@ class Game:
             new_vel.x = 0.5 * new_vel.x + 4.0 * direction
         else:
             new_vel.x = 0.95 * new_vel.x + 2.0 * direction
-
         new_vel.x = min(max(new_vel.x, -8), 8)
 
         self.player.update_position(self.map, new_vel)
