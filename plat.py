@@ -2,16 +2,24 @@ import sys
 import sdl2.ext
 from math import sqrt
 from time import time
-from typing import List, Set, Tuple
+from typing import List, NamedTuple, Set, Tuple
 from enum import Enum
-from sdl2 import SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL, SDL_KEYDOWN, SDL_KEYUP, SDL_QUIT, SDL_RENDERER_ACCELERATED, SDL_RENDERER_PRESENTVSYNC
+from sdl2 import SDL_RendererFlip, SDL_FLIP_NONE, SDL_FLIP_HORIZONTAL, SDL_KEYDOWN, SDL_KEYUP, SDL_QUIT,\
+    SDL_RENDERER_ACCELERATED, SDL_RENDERER_PRESENTVSYNC, SDLK_SPACE, SDLK_a, SDLK_d, SDLK_q, SDLK_r
 from sdl2.ext import Color, FontManager, Renderer, Resources, SpriteFactory, TextureSprite, Window
-from collections import namedtuple
-
-Rect = namedtuple("Rect", ["x", "y", "w", "h"])
 
 
-BodyPart = namedtuple("BodyPart", ["source", "dest", "flip"])
+Rect = Tuple[int, int, int, int]
+
+Size = NamedTuple('Size', [('w', int),
+                           ('h', int)])
+
+
+class BodyPart:
+    def __init__(self, source: Rect, dest: Rect, flip: SDL_RendererFlip) -> None:
+        self.source = source
+        self.dest = dest
+        self.flip = flip
 
 
 class Point2d:
@@ -84,9 +92,9 @@ class Collision(Enum):
     CORNER = 3
 
 TILES_PER_ROW = 16
-TILE_SIZE = Point2d(64, 64)
-PLAYER_SIZE = Point2d(64, 64)
-WINDOW_SIZE = Point2d(1280, 720)
+TILE_SIZE = Size(64, 64)
+PLAYER_SIZE = Size(64, 64)
+WINDOW_SIZE = Size(1280, 720)
 
 AIR = 0
 START = 78
@@ -116,8 +124,8 @@ class Map:
             self.height += 1
 
     def __get_tile(self, x: int, y: int) -> int:
-        nx = min(max(int(x / TILE_SIZE.x), 0), self.width - 1)
-        ny = min(max(int(y / TILE_SIZE.y), 0), self.height - 1)
+        nx = min(max(int(x / TILE_SIZE.w), 0), self.width - 1)
+        ny = min(max(int(y / TILE_SIZE.h), 0), self.height - 1)
         pos = ny * self.width + nx
         return self.tiles[pos]
 
@@ -130,21 +138,23 @@ class Map:
     def is_solid(self, pos: Point2d) -> bool:
         return self.__is_solid(int(round(pos.x)), int(round(pos.y)))
 
-    def on_ground(self, pos: Point2d, size: Vector2d) -> bool:
-        size = size * 0.5
-        return (self.is_solid(Point2d(pos.x - size.x, pos.y + size.y + 1)) or
-                self.is_solid(Point2d(pos.x + size.x, pos.y + size.y + 1)))
+    def on_ground(self, pos: Point2d, size: Size) -> bool:
+        size_x = size.w * 0.5
+        size_y = size.h * 0.5
+        return (self.is_solid(Point2d(pos.x - size_x, pos.y + size_y + 1)) or
+                self.is_solid(Point2d(pos.x + size_x, pos.y + size_y + 1)))
 
-    def test_box(self, pos: Point2d, size: Vector2d) -> bool:
-        size = size * 0.5
+    def test_box(self, pos: Point2d, size: Size) -> bool:
+        size_x = size.w * 0.5
+        size_y = size.h * 0.5
         return (
-            self.is_solid(Point2d(pos.x - size.x, pos.y - size.y)) or
-            self.is_solid(Point2d(pos.x + size.x, pos.y - size.y)) or
-            self.is_solid(Point2d(pos.x - size.x, pos.y + size.y)) or
-            self.is_solid(Point2d(pos.x + size.x, pos.y + size.y))
+            self.is_solid(Point2d(pos.x - size_x, pos.y - size_y)) or
+            self.is_solid(Point2d(pos.x + size_x, pos.y - size_y)) or
+            self.is_solid(Point2d(pos.x - size_x, pos.y + size_y)) or
+            self.is_solid(Point2d(pos.x + size_x, pos.y + size_y))
         )
 
-    def move_box(self, pos: Point2d, vel: Vector2d, size: Vector2d) -> Tuple[Set[Collision], Point2d, Point2d]:
+    def move_box(self, pos: Point2d, vel: Vector2d, size: Size) -> Tuple[Set[Collision], Point2d, Point2d]:
         distance = vel.len()
         maximum = int(distance)
 
@@ -196,11 +206,12 @@ class Game:
         # load resources
         resources = Resources(__file__, "resources")
         self.font = FontManager(resources.get_path("DejaVuSans.ttf"), size=28)
-        factory = SpriteFactory(sdl2.ext.TEXTURE, renderer=renderer)
+        factory = SpriteFactory(renderer=renderer)
         self.player = Player(factory.from_image(resources.get_path("player.png")))
         self.map = Map(factory.from_image(resources.get_path("grass.png")),
                        resources.get_path("default.map"))
         self.camera = Vector2d(0, 0)
+        # self.camera.x = self.player.pos.x - WINDOW_SIZE.w / 2
         self.tc_timer = TextCache()
         self.tc_best_time = TextCache()
 
@@ -240,16 +251,16 @@ class Game:
         # self.player.pos += self.player.vel
 
     def move_camera(self) -> None:
-        half_win = WINDOW_SIZE.x / 2
+        half_win = WINDOW_SIZE.w / 2
         # 1. always in center:
         # self.camera.x = self.player.pos.x - half_win
         # 2. follow once leaves center:
         left_area = self.player.pos.x - half_win - 100
         right_area = self.player.pos.x - half_win + 100
-        self.camera.x = min(max(self.camera.x, left_area), right_area)
+        # self.camera.x = min(max(self.camera.x, left_area), right_area)
         # 3. fluid
         dist = self.camera.x - self.player.pos.x + half_win
-        # self.camera.x -= 0.05 * dist
+        self.camera.x -= 0.05 * dist
 
     def logic(self, tick: int) -> None:
         player_time = self.player.time
@@ -269,8 +280,8 @@ class Game:
             tc.cache = render_text(self.renderer, self.font, text, color)
             tc.text = text
 
-        source = Rect(0, 0, tc.cache.w, tc.cache.h)
-        dest = Rect(x, y, tc.cache.w, tc.cache.h)
+        source = (0, 0, tc.cache.w, tc.cache.h)
+        dest = (x, y, tc.cache.w, tc.cache.h)
         self.renderer.copy(tc.cache.texture, source, dest, angle=0, center=None, flip=SDL_FLIP_NONE)
 
     def render(self, tick: int) -> None:
@@ -283,7 +294,7 @@ class Game:
         render_map(self.renderer, self.map, self.camera)
 
         player_time = self.player.time
-        white = Color(255, 255, 255)
+        white = Color(r=255, g=255, b=255)
         if player_time.begin >= 0:
             self.__render_text(format_time_exact(tick - player_time.begin), 50, 100, white, self.tc_timer)
         elif player_time.finish >= 0:
@@ -312,25 +323,25 @@ def render_tee(renderer: Renderer, texture: TextureSprite,
     y = int(pos.y)
 
     body_parts = [
-        BodyPart(Rect(192, 64, 64, 32), Rect(x - 60, y, 96, 48),
+        BodyPart((192, 64, 64, 32), (x - 60, y, 96, 48),
                  SDL_FLIP_NONE),  # back feet shadow
-        BodyPart(Rect(96, 0, 96, 96), Rect(x - 48, y - 48, 96, 96),
+        BodyPart((96, 0, 96, 96), (x - 48, y - 48, 96, 96),
                  SDL_FLIP_NONE),  # body shadow
-        BodyPart(Rect(192, 64, 64, 32), Rect(x - 36, y, 96, 48),
+        BodyPart((192, 64, 64, 32), (x - 36, y, 96, 48),
                  SDL_FLIP_NONE),  # front feet shadow
-        BodyPart(Rect(192, 32, 64, 32), Rect(x - 60, y, 96, 48),
+        BodyPart((192, 32, 64, 32), (x - 60, y, 96, 48),
                  SDL_FLIP_NONE),  # back feet
-        BodyPart(Rect(0, 0, 96, 96), Rect(x - 48, y - 48, 96, 96),
+        BodyPart((0, 0, 96, 96), (x - 48, y - 48, 96, 96),
                  SDL_FLIP_NONE),  # body
-        BodyPart(Rect(192, 32, 64, 32), Rect(x - 36, y, 96, 48),
+        BodyPart((192, 32, 64, 32), (x - 36, y, 96, 48),
                  SDL_FLIP_NONE),  # front feet
-        BodyPart(Rect(64, 96, 32, 32), Rect(x - 18, y - 21, 36, 36),
+        BodyPart((64, 96, 32, 32), (x - 18, y - 21, 36, 36),
                  SDL_FLIP_NONE),  # left eye
-        BodyPart(Rect(64, 96, 32, 32), Rect(x - 6, y - 21, 36, 36),
+        BodyPart((64, 96, 32, 32), (x - 6, y - 21, 36, 36),
                  SDL_FLIP_HORIZONTAL)  # right eye
     ]
     for part in body_parts:
-        renderer.copy(texture, part.source, part.dest, angle=0.0,
+        renderer.copy(texture, part.source, part.dest, angle=0,
                       center=None, flip=part.flip)
 
 
@@ -338,13 +349,13 @@ def render_map(renderer: Renderer, map: Map, camera: Vector2d):
     for i, tile_nr in enumerate(map.tiles):
         if tile_nr == 0:
             continue
-        clip_x = (tile_nr % TILES_PER_ROW) * TILE_SIZE.x
-        clip_y = int(tile_nr / TILES_PER_ROW) * TILE_SIZE.y
-        dest_x = (i % map.width) * TILE_SIZE.x - int(camera.x)
-        dest_y = int(i / map.width) * TILE_SIZE.y - int(camera.y)
+        clip_x = (tile_nr % TILES_PER_ROW) * TILE_SIZE.w
+        clip_y = int(tile_nr / TILES_PER_ROW) * TILE_SIZE.h
+        dest_x = (i % map.width) * TILE_SIZE.w - int(camera.x)
+        dest_y = int(i / map.width) * TILE_SIZE.h - int(camera.y)
 
-        clip = Rect(clip_x, clip_y, TILE_SIZE.x, TILE_SIZE.y)
-        dest = Rect(dest_x, dest_y, TILE_SIZE.x, TILE_SIZE.y)
+        clip = (clip_x, clip_y, TILE_SIZE.w, TILE_SIZE.h)
+        dest = (dest_x, dest_y, TILE_SIZE.w, TILE_SIZE.h)
         renderer.copy(map.texture, clip, dest)
 
 
@@ -356,22 +367,22 @@ def render_text(
 
     width = surface.w
     height = surface.h
-    factory = SpriteFactory(sdl2.ext.TEXTURE, renderer=renderer)
+    factory = SpriteFactory(renderer=renderer)
     texture = factory.from_surface(surface, free=True)
 
     return CacheLine(texture, width, height)
 
 
 def to_input(key):
-    if key == sdl2.SDLK_a:
+    if key == SDLK_a:
         return Input.LEFT
-    elif key == sdl2.SDLK_d:
+    elif key == SDLK_d:
         return Input.RIGHT
-    elif key == sdl2.SDLK_SPACE:
+    elif key == SDLK_SPACE:
         return Input.JUMP
-    elif key == sdl2.SDLK_r:
+    elif key == SDLK_r:
         return Input.RESTART
-    elif key == sdl2.SDLK_q:
+    elif key == SDLK_q:
         return Input.QUIT
     else:
         return Input.NONE
@@ -380,7 +391,7 @@ def to_input(key):
 def main() -> int:
     sdl2.ext.init()
 
-    window = Window("Our own 2D platformer", size=(WINDOW_SIZE.x, WINDOW_SIZE.y))
+    window = Window("Our own 2D platformer", size=(WINDOW_SIZE.w, WINDOW_SIZE.h))
     window.show()
 
     renderer = Renderer(
