@@ -1,6 +1,6 @@
 from basic2d import Point2d, Vector2d
 from enum import Enum, IntEnum
-from sdl2.ext import Renderer, TextureSprite
+from sdl2.ext import Renderer, Resources, SpriteFactory, TextureSprite
 from typing import List, NamedTuple, Tuple
 
 
@@ -26,12 +26,14 @@ class Collision(Enum):
 
 
 class Map:
-    def __init__(self, texture: TextureSprite, file_name: str) -> None:
-        self.texture = texture
+    def __init__(self, resources: Resources) -> None:
+        self.texture = None  # type: TextureSprite
+        self.texture_path = resources.get_path("grass.png")
         self.tiles = []  # type: List[int]
         self.width = 0
         self.height = 0
 
+        file_name = resources.get_path("default.map")
         file = open(file_name, "r")
         for line in file.readlines():
             width = 0
@@ -63,21 +65,21 @@ class Map:
         return self.__is_solid(int(round(pos.x)), int(round(pos.y)))
 
     def on_ground(self, pos: Point2d, size: Vector2d) -> bool:
-        size = size * 0.5
-        return (self.is_solid(Point2d(pos.x - size.x, pos.y + size.y + 1)) or
-                self.is_solid(Point2d(pos.x + size.x, pos.y + size.y + 1)))
+        half_size = size * 0.5  # type: Vector2d
+        return (self.is_solid(Point2d(pos.x - half_size.x, pos.y + half_size.y + 1)) or
+                self.is_solid(Point2d(pos.x + half_size.x, pos.y + half_size.y + 1)))
 
     def test_box(self, pos: Point2d, size: Vector2d) -> bool:
-        size = size * 0.5
+        half_size = size * 0.5  # type: Vector2d
         return (
-            self.is_solid(Point2d(pos.x - size.x, pos.y - size.y)) or
-            self.is_solid(Point2d(pos.x + size.x, pos.y - size.y)) or
-            self.is_solid(Point2d(pos.x - size.x, pos.y + size.y)) or
-            self.is_solid(Point2d(pos.x + size.x, pos.y + size.y))
+            self.is_solid(Point2d(pos.x - half_size.x, pos.y - half_size.y)) or
+            self.is_solid(Point2d(pos.x + half_size.x, pos.y - half_size.y)) or
+            self.is_solid(Point2d(pos.x - half_size.x, pos.y + half_size.y)) or
+            self.is_solid(Point2d(pos.x + half_size.x, pos.y + half_size.y))
         )
 
     def move_box(self, pos: Point2d, vel: Vector2d, size: Vector2d) -> Tuple[Point2d, Vector2d]:
-        distance = vel.len()
+        distance = vel.norm
         maximum = int(distance)
 
         if distance < 0:
@@ -86,7 +88,7 @@ class Map:
         fraction = 1.0 / float(maximum + 1)
 
         for i in range(0, maximum + 1):
-            new_pos = pos + vel * fraction
+            new_pos = pos + vel * fraction  # type: Point2d
             if self.test_box(new_pos, size):
                 hit = False
                 if self.test_box(Point2d(pos.x, new_pos.y), size):
@@ -108,6 +110,10 @@ class Map:
         return pos, vel
 
     def render(self, renderer: Renderer, camera: Vector2d):
+        if self.texture is None:
+            factory = SpriteFactory(renderer=renderer)
+            print(f"loading texture: {self.texture_path}")
+            self.texture = factory.from_image(self.texture_path)  # type: TextureSprite
         for i, tile_nr in enumerate(self.tiles):
             if tile_nr == 0:
                 continue
