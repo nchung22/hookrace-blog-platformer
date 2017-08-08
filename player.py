@@ -8,7 +8,7 @@ from typing import Optional
 
 PLAYER_SIZE = Vector2d(64, 64)
 INITIAL_POS = Point2d(170, 500)
-INITIAL_VEL = Vector2d(0, 0)
+ZERO_VEL = Vector2d(0, 0)
 
 
 class Player:
@@ -16,12 +16,12 @@ class Player:
         self.texture = None  # type: Optional[TextureSprite]
         self.texture_path = resources.get_path("player.png")
         self.pos = copy(INITIAL_POS)
-        self.vel = copy(INITIAL_VEL)
+        self.vel = copy(ZERO_VEL)
         self.restart()
 
     def restart(self) -> None:
         self.pos = copy(INITIAL_POS)
-        self.vel = copy(INITIAL_VEL)
+        self.vel = copy(ZERO_VEL)
 
     def on_ground(self, tilemap: Map) -> bool:
         return tilemap.on_ground(self.pos, PLAYER_SIZE)
