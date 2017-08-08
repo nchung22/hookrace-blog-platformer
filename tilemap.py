@@ -1,15 +1,12 @@
 from basic2d import Point2d, Vector2d
 from enum import Enum, IntEnum
 from sdl2.ext import Renderer, Resources, SpriteFactory, TextureSprite
-from typing import List, NamedTuple, Optional, Tuple
+from typing import List, Optional, Tuple
 
 
-Size = NamedTuple('Size', [('w', int),
-                           ('h', int)])
-
-
+TILE_WIDTH = 64
+TILE_HEIGHT = 64
 TILES_PER_ROW = 16
-TILE_SIZE = Size(64, 64)
 
 
 # tile types defined in *.map files
@@ -50,8 +47,8 @@ class Map:
             self.height += 1
 
     def __get_tile(self, x: int, y: int) -> int:
-        nx = min(max(int(x / TILE_SIZE.w), 0), self.width - 1)
-        ny = min(max(int(y / TILE_SIZE.h), 0), self.height - 1)
+        nx = min(max(int(x / TILE_WIDTH), 0), self.width - 1)
+        ny = min(max(int(y / TILE_HEIGHT), 0), self.height - 1)
         pos = ny * self.width + nx
         return self.tiles[pos]
 
@@ -112,19 +109,18 @@ class Map:
     def render(self, renderer: Renderer, camera: Vector2d):
         if self.texture is None:
             factory = SpriteFactory(renderer=renderer)
-            print(f"loading texture: {self.texture_path}")
             self.texture = factory.from_image(self.texture_path)
         texture = self.texture  # type: TextureSprite
 
         for i, tile_nr in enumerate(self.tiles):
             if tile_nr == 0:
                 continue
-            clip_x = (tile_nr % TILES_PER_ROW) * TILE_SIZE.w
-            clip_y = int(tile_nr / TILES_PER_ROW) * TILE_SIZE.h
-            dest_x = (i % self.width) * TILE_SIZE.w - int(camera.x)
-            dest_y = int(i / self.width) * TILE_SIZE.h - int(camera.y)
+            clip_x = (tile_nr % TILES_PER_ROW) * TILE_WIDTH
+            clip_y = int(tile_nr / TILES_PER_ROW) * TILE_HEIGHT
+            dest_x = (i % self.width) * TILE_WIDTH - int(camera.x)
+            dest_y = int(i / self.width) * TILE_HEIGHT - int(camera.y)
 
-            clip = (clip_x, clip_y, TILE_SIZE.w, TILE_SIZE.h)
-            dest = (dest_x, dest_y, TILE_SIZE.w, TILE_SIZE.h)
+            clip = (clip_x, clip_y, TILE_WIDTH, TILE_HEIGHT)
+            dest = (dest_x, dest_y, TILE_WIDTH, TILE_HEIGHT)
             renderer.copy(texture, clip, dest)
 

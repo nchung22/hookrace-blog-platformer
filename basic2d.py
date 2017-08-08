@@ -10,7 +10,7 @@ class Vector2d:
     def norm(self):
         return sqrt(self.x * self.x + self.y * self.y)
 
-    def __mul__(self, scalar: float):
+    def __mul__(self, scalar):
         return Vector2d(self.x * scalar, self.y * scalar)
 
     def __copy__(self):
@@ -22,10 +22,10 @@ class Point2d:
         self.x = x
         self.y = y
 
-    def __sub__(self, other: Vector2d):
+    def __sub__(self, other):
         return Point2d(self.x - other.x, self.y - other.y)
 
-    def __add__(self, other: Vector2d):
+    def __add__(self, other):
         return Point2d(self.x + other.x, self.y + other.y)
 
     def __copy__(self):

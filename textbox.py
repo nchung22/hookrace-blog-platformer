@@ -3,7 +3,7 @@ from sdl2.ext import Color, FontManager, Renderer, SpriteFactory, TextureSprite
 from typing import Optional
 
 
-class CacheLine:
+class TextTexture:
     def __init__(self, text: str, texture: TextureSprite, w: int, h: int) -> None:
         self.text = text
         self.texture = texture
@@ -18,7 +18,7 @@ class TextBox:
         self.x = x
         self.y = y
         self.color = color
-        self.cache = None  # type: Optional[CacheLine]
+        self.cache = None  # type: Optional[TextTexture]
 
     def render(self, renderer: Renderer):
         if self.cache is None or self.text != self.cache.text:
@@ -29,7 +29,7 @@ class TextBox:
         dest = (self.x, self.y, self.cache.w, self.cache.h)
         renderer.copy(self.cache.texture, source, dest, angle=0, center=None, flip=SDL_FLIP_NONE)
 
-    def create_text_texture(self, renderer: Renderer) -> CacheLine:
+    def create_text_texture(self, renderer: Renderer) -> TextTexture:
         surface = self.font.render(self.text, color=self.color)
         # TODO: surface.setSurfaceAlphaMod
 
@@ -38,5 +38,5 @@ class TextBox:
         factory = SpriteFactory(renderer=renderer)
         texture = factory.from_surface(surface, free=True)
 
-        return CacheLine(self.text, texture, width, height)
+        return TextTexture(self.text, texture, width, height)
 

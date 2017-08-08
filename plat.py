@@ -34,7 +34,7 @@ class Game:
         new_vel.y += 0.75  # gravity
 
         # new x velocity...
-        direction = self.controller.direction
+        direction = float(self.controller.direction)
         if ground:
             new_vel.x = 0.5 * new_vel.x + 4.0 * direction
         else:
