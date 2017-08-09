@@ -26,40 +26,18 @@ class Map:
     def __init__(self, resources: Resources) -> None:
         self.texture = None  # type: Optional[TextureSprite]
         self.texture_path = resources.get_path("grass.png")
-        self.tiles = []  # type: List[int]
-        self.width = 0
-        self.height = 0
-
-        file_name = resources.get_path("default.map")
-        file = open(file_name, "r")
-        for line in file.readlines():
-            width = 0
-            for word in line.split(' '):
-                if word == "":
-                    continue
-                value = int(word)
-                self.tiles.append(value)
-                width += 1
-
-            if self.width > 0 and self.width != width:
-                raise RuntimeError("Incompatible line length in map " + file_name)
-            self.width = width
-            self.height += 1
-
-    def __get_tile(self, x: int, y: int) -> int:
-        nx = min(max(int(x / TILE_WIDTH), 0), self.width - 1)
-        ny = min(max(int(y / TILE_HEIGHT), 0), self.height - 1)
-        pos = ny * self.width + nx
-        return self.tiles[pos]
+        self.tiles, self.width, self.height = load_tile_map(resources)
 
     def get_tile(self, pos: Point2d) -> int:
-        return self.__get_tile(int(round(pos.x)), int(round(pos.y)))
-
-    def __is_solid(self, x: int, y: int) -> bool:
-        return self.__get_tile(x, y) not in {Tile.AIR, Tile.START, Tile.FINISH}
+        x = int(round(pos.x))
+        y = int(round(pos.y))
+        nx = min(max(int(x / TILE_WIDTH), 0), self.width - 1)
+        ny = min(max(int(y / TILE_HEIGHT), 0), self.height - 1)
+        i = ny * self.width + nx
+        return self.tiles[i]
 
     def is_solid(self, pos: Point2d) -> bool:
-        return self.__is_solid(int(round(pos.x)), int(round(pos.y)))
+        return self.get_tile(pos) not in {Tile.AIR, Tile.START, Tile.FINISH}
 
     def on_ground(self, pos: Point2d, size: Vector2d) -> bool:
         half_size = size * 0.5  # type: Vector2d
@@ -124,3 +102,25 @@ class Map:
             dest = (dest_x, dest_y, TILE_WIDTH, TILE_HEIGHT)
             renderer.copy(texture, clip, dest)
 
+
+def load_tile_map(resources: Resources) -> Tuple[List[int], int, int]:
+    tiles = []
+    width = 0
+    height = 0
+    file_path = resources.get_path("default.map")
+    file = open(file_path, "r")
+    for line in file.readlines():
+        line_width = 0
+        for word in line.split(' '):
+            if word == "":
+                continue
+            value = int(word)
+            tiles.append(value)
+            line_width += 1
+
+        if width > 0 and width != line_width:
+            raise RuntimeError("Incompatible line length in map " + file_path)
+        width = line_width
+        height += 1
+
+    return tiles, width, height

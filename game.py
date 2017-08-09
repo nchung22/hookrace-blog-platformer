@@ -10,31 +10,31 @@ from player import Player
 from stopwatch import Stopwatch
 from tilemap import Map, Tile
 
-
+FRAMES_PER_SECOND = 50
+SECONDS_PER_FRAME = 1.0 / FRAMES_PER_SECOND
 WINDOW_SIZE = (1280, 720)
 
 
 class Game:
     def __init__(self, resources: Resources) -> None:
-        self.controller = Controller()
         self.player = Player(resources)
         self.map = Map(resources)
         self.camera = Vector2d(0, 0)
         # self.camera = Vector2d(self.player.pos.x - WINDOW_SIZE.w / 2, 0)
         self.stopwatch = Stopwatch(resources)
 
-    def physics(self) -> None:
+    def physics(self, controller: Controller) -> None:
         ground = self.player.on_ground(self.map)
         new_vel = copy(self.player.vel)
 
         # new y velocity...
-        if self.controller.has_input(Input.JUMP):
+        if controller.has_input(Input.JUMP):
             if ground:
                 new_vel.y = -21
         new_vel.y += 0.75  # gravity
 
         # new x velocity...
-        direction = float(self.controller.direction)
+        direction = float(controller.direction)
         if ground:
             new_vel.x = 0.5 * new_vel.x + 4.0 * direction
         else:
@@ -56,37 +56,34 @@ class Game:
         dist = self.camera.x - self.player.pos.x + half_win_width
         self.camera.x -= 0.05 * dist
 
-    def logic(self, tick: int) -> None:
+    def logic(self) -> None:
         player_tile = self.map.get_tile(self.player.pos)
         if player_tile == Tile.START:
-            self.stopwatch.start(tick)
+            self.stopwatch.start()
         elif player_tile == Tile.FINISH:
-            self.stopwatch.stop(tick)
+            self.stopwatch.stop()
+        else:
+            self.stopwatch.step()
 
-    def update(self, tick: int) -> None:
-        if self.controller.has_input(Input.RESTART):
+    def update(self, controller: Controller) -> None:
+        if controller.has_input(Input.RESTART):
             self.player.restart()
             self.stopwatch.reset()
 
-        self.physics()
+        self.physics(controller)
         self.move_camera()
-        self.logic(tick)
+        self.logic()
 
-    def render(self, renderer: Renderer, tick: int) -> None:
-        # Draw over all drawings of the last frame with the default color
-        renderer.clear()
-
-        # Actual drawing here
+    def render(self, renderer: Renderer) -> None:
         self.player.render(renderer, self.camera)
         self.map.render(renderer, self.camera)
-        self.stopwatch.render(renderer, tick)
-
-        # Show the result on screen
-        renderer.present()
+        self.stopwatch.render(renderer)
 
 
 def main() -> int:
     sdl2.ext.init()
+    resources = Resources(__file__, "resources")
+    controller = Controller()
 
     window = Window("Our own 2D platformer", size=WINDOW_SIZE)
     window.show()
@@ -99,21 +96,27 @@ def main() -> int:
 
     renderer.color = Color(r=110, g=132, b=174)
 
-    resources = Resources(__file__, "resources")
     game = Game(resources)
 
-    start_time = time()
-    last_tick = 0
-    # Game loop, draws each frame
-    while not game.controller.has_input(Input.QUIT):
-        game.controller.handle_input()
+    # Game Loop, draws each frame
+    last_time = time()
+    lag = 0.0
+    while True:
+        now = time()
+        lag += now - last_time
+        last_time = now
 
-        new_tick = int((time() - start_time) * 50)
-        for tick in range(last_tick + 1, new_tick + 1):
-            game.update(tick)
-        last_tick = new_tick
+        controller.handle_input()
+        if controller.has_input(Input.QUIT):
+            break
 
-        game.render(renderer, last_tick)
+        while lag >= SECONDS_PER_FRAME:
+            game.update(controller)
+            lag -= SECONDS_PER_FRAME
+
+        renderer.clear()
+        game.render(renderer)
+        renderer.present()
 
     sdl2.ext.quit()
     return 0

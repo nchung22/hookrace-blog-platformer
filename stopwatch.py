@@ -4,9 +4,9 @@ from textbox import TextBox
 
 class Stopwatch:
     def __init__(self, resources: Resources) -> None:
-        self.begin = -1
-        self.finish = -1
-        self.best = -1
+        self.ticks = -1
+        self.last_finish = -1
+        self.best_finish = -1
 
         font = FontManager(resources.get_path("DejaVuSans.ttf"), size=28)
         white = Color(r=255, g=255, b=255)
@@ -14,28 +14,32 @@ class Stopwatch:
         self.best_time_textbox = TextBox(font, 50, 150, white)
 
     def reset(self) -> None:
-        self.begin = -1
-        self.finish = -1
+        self.ticks = -1
+        self.last_finish = -1
 
-    def start(self, tick: int) -> None:
-        self.begin = tick
+    def start(self) -> None:
+        self.ticks = 0
 
-    def stop(self, tick: int) -> None:
-        if self.begin >= 0:
-            self.finish = tick - self.begin
-            self.begin = -1
-            if self.best < 0 or self.finish < self.best:
-                self.best = self.finish
+    def stop(self) -> None:
+        if self.ticks >= 0:
+            self.last_finish = self.ticks
+            self.ticks = -1
+            if self.best_finish < 0 or self.last_finish < self.best_finish:
+                self.best_finish = self.last_finish
 
-    def render(self, renderer: Renderer, tick: int) -> None:
-        if self.begin >= 0:
-            self.timer_textbox.text = format_time_exact(tick - self.begin)
+    def step(self) -> None:
+        if self.ticks >= 0:
+            self.ticks += 1
+
+    def render(self, renderer: Renderer) -> None:
+        if self.ticks >= 0:
+            self.timer_textbox.text = format_time_exact(self.ticks)
             self.timer_textbox.render(renderer)
-        elif self.finish >= 0:
-            self.timer_textbox.text = f"Finished in: {format_time_exact(self.finish)}"
+        elif self.last_finish >= 0:
+            self.timer_textbox.text = f"Finished in: {format_time_exact(self.last_finish)}"
             self.timer_textbox.render(renderer)
-        if self.best >= 0:
-            self.best_time_textbox.text = f"Best time: {format_time_exact(self.best)}"
+        if self.best_finish >= 0:
+            self.best_time_textbox.text = f"Best time: {format_time_exact(self.best_finish)}"
             self.best_time_textbox.render(renderer)
 
 

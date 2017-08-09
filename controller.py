@@ -44,8 +44,8 @@ class Controller:
         return Direction((1 if self.inputs[Input.RIGHT] else 0)
                          - (1 if self.inputs[Input.LEFT] else 0))
 
-    def has_input(self, input: Input) -> bool:
-        return self.inputs[input]
+    def has_input(self, input_type: Input) -> bool:
+        return self.inputs[input_type]
 
 
 def to_input(key: SDL_Keycode) -> Input:
