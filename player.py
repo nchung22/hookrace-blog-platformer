@@ -43,9 +43,7 @@ class Player:
         new_vel.x = min(max(new_vel.x, -8), 8)
 
         # Objective 6: Use the tilemap to shift the player position by velocity
-        self.pos, self.vel = tilemap.move_box(
-            self.pos, new_vel, PLAYER_SIZE
-        )
+        # YOUR CODE HERE...
 
     def render(self, renderer: Renderer, camera: Vector2d) -> None:
         if self.texture is None:
@@ -58,9 +56,9 @@ class Player:
         #             |     *        | <-- player
         # 0--1--2--3--|--5--6--7--8--| <-- x-axis world (float)
         #             ^                <-- camera
-        pos = self.pos - camera
-        x = int(pos.x)
-        y = int(pos.y)
+        # YOUR CODE HERE...
+        x = 0
+        y = 0
 
         # We need to cut up the player sheet into an array of tuples
         # The upper left is (0, 0). The total size is 256x128.
@@ -95,5 +93,4 @@ class Player:
         ]
 
         # Objective 4: Iterate over the body parts and render each one
-        for source, dest, flip in body_parts:
-            renderer.copy(texture, source, dest, flip=flip)
+        # YOUR CODE HERE...

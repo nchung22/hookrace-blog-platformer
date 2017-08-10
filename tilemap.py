@@ -35,8 +35,8 @@ class Map:
         ny = min(max(int(y / TILE_HEIGHT), 0), self.height - 1)
 
         # Objective 5: Convert from row, col back to tile index
-        i = ny * self.width + nx
-        return self.tiles[i]
+        # YOUR CODE HERE...
+        return 0
 
     def is_solid(self, pos: Point2d) -> bool:
         return self.get_tile(pos) not in {Tile.AIR, Tile.START, Tile.FINISH}
@@ -111,20 +111,6 @@ def load_tile_map(resources: Resources) -> Tuple[List[int], int, int]:
     height = 0
 
     # Objective 5: Load in tilemap
-    file_path = resources.get_path("default.map")
-    file = open(file_path, "r")
-    for line in file.readlines():
-        line_width = 0
-        for word in line.split(' '):
-            if word == "":
-                continue
-            value = int(word)
-            tiles.append(value)
-            line_width += 1
-
-        if width > 0 and width != line_width:
-            raise RuntimeError("Incompatible line length in map " + file_path)
-        width = line_width
-        height += 1
+    # YOUR CODE HERE...
 
     return tiles, width, height

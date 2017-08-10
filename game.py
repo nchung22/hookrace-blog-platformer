@@ -1,76 +1,69 @@
 import sys
 import sdl2.ext
 from time import time
-from sdl2 import SDL_RENDERER_ACCELERATED, SDL_RENDERER_PRESENTVSYNC
 from sdl2.ext import Color, Renderer, Resources, Window
 from basic2d import Point2d, Vector2d
 from controller import Input, Controller
 from stopwatch import Stopwatch
 
 # Objective 4: Import Player from player module
-from player import Player
+# YOUR CODE HERE...
 
 # Objective 5: Import Map and Tile from tilemap module
-from tilemap import Map, Tile
+# YOUR CODE HERE...
+
 
 FRAMES_PER_SECOND = 50
 SECONDS_PER_FRAME = 1.0 / FRAMES_PER_SECOND
 
 # Objective 1: Create the title and size variables
-WINDOW_SIZE = (1280, 720)
-WINDOW_TITLE = "Our own 2D platformer"
+# YOUR CODE HERE...
 
 
 class Game:
     def __init__(self, resources: Resources) -> None:
         self.camera = Vector2d(0, 0)
-        # self.camera = Vector2d(self.player.pos.x - WINDOW_SIZE.w / 2, 0)
         self.stopwatch = Stopwatch(resources)
 
         # Objective 4: Create a Player
-        self.player = Player(resources)
+        # YOUR CODE HERE...
 
         # Objective 5: Create a Map
-        self.map = Map(resources)
+        # YOUR CODE HERE...
 
     def update(self, controller: Controller) -> None:
         if controller.has_input(Input.RESTART):
             self.stopwatch.reset()
 
             # Objective 4: Put the player back at the start
-            self.player.restart()
+            # YOUR CODE HERE...
 
         # Objective 6: Call the player update method
-        self.player.update(controller, self.map)
+        # YOUR CODE HERE...
 
         # Objective 7: Call the move_camera function with a focus on the player position
-        move_camera(self.camera, self.player.pos)
+        # YOUR CODE HERE...
 
         # Objective 8: Update the stopwatch according to the player tile
-        player_tile = self.map.get_tile(self.player.pos)
-        if player_tile == Tile.START:
-            self.stopwatch.start()
-        elif player_tile == Tile.FINISH:
-            self.stopwatch.stop()
-        else:
-            self.stopwatch.step()
+        # YOUR CODE HERE...
 
     def render(self, renderer: Renderer) -> None:
         # Objective 4: Render the player
-        self.player.render(renderer, self.camera)
+        # YOUR CODE HERE...
 
         # Objective 5: Render the tilemap
-        self.map.render(renderer, self.camera)
+        # YOUR CODE HERE...
 
         self.stopwatch.render(renderer)
 
 
 def move_camera(camera: Vector2d, focus: Point2d) -> None:
     # Objective 7: Find the correct value for half the window width
-    win_width, _ = WINDOW_SIZE
-    half_win_width = win_width / 2
+    # YOUR CODE HERE...
+    half_win_width = 0
 
     # Objective 7: Uncomment and try out the different camera movements
+
     # 1. always in center:
     # camera.x = focus.x - half_win_width
 
@@ -80,8 +73,8 @@ def move_camera(camera: Vector2d, focus: Point2d) -> None:
     # camera.x = min(max(camera.x, left_area), right_area)
 
     # 3. fluid
-    dist = camera.x - focus.x + half_win_width
-    camera.x -= 0.05 * dist
+    # dist = camera.x - focus.x + half_win_width
+    # camera.x -= 0.05 * dist
 
 
 def main() -> int:
@@ -90,20 +83,13 @@ def main() -> int:
     controller = Controller()
 
     # Objective 1: Create and show the Window
-    window = Window(WINDOW_TITLE, size=WINDOW_SIZE)
-    window.show()
+    # YOUR CODE HERE...
 
     # Objective 2: Create the Renderer with a background color
-    renderer = Renderer(
-        window,
-        index=-1,
-        flags=SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-    )
-
-    renderer.color = Color(r=110, g=132, b=174)
+    # YOUR CODE HERE...
 
     # Objective 3: Set up the game
-    game = Game(resources)
+    # YOUR CODE HERE...
 
     # Game Loop, draws each frame
     last_time = time()
@@ -118,18 +104,16 @@ def main() -> int:
             break
 
         # Objective 3: Update the game the appropriate number of frames
-        while lag >= SECONDS_PER_FRAME:
-            game.update(controller)
-            lag -= SECONDS_PER_FRAME
+        # YOUR CODE HERE...
 
         # Objective 2: Draw over all drawings of the last frame with the default color
-        renderer.clear()
+        # YOUR CODE HERE...
 
         # Objective 3: Render the game
-        game.render(renderer)
+        # YOUR CODE HERE...
 
         # Objective 2: Show the result on screen
-        renderer.present()
+        # YOUR CODE HERE...
 
     sdl2.ext.quit()
     return 0
