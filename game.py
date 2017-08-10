@@ -30,6 +30,7 @@ class Game:
         # Objective 4: Create a Player
         self.player = Player(resources)
 
+        # Objective 5: Create a Map
         self.map = Map(resources)
 
     def update(self, controller: Controller) -> None:
@@ -42,10 +43,10 @@ class Game:
         # Objective 6: Call the player update method
         self.player.update(controller, self.map)
 
-        # Objective 8: Call the move_camera function with a focus on the player position
+        # Objective 7: Call the move_camera function with a focus on the player position
         move_camera(self.camera, self.player.pos)
 
-        # Objective 9: Update the stopwatch according to the player tile
+        # Objective 8: Update the stopwatch according to the player tile
         player_tile = self.map.get_tile(self.player.pos)
         if player_tile == Tile.START:
             self.stopwatch.start()
@@ -65,11 +66,11 @@ class Game:
 
 
 def move_camera(camera: Vector2d, focus: Point2d) -> None:
-    # Objective 8: Find the correct value for half the window width
+    # Objective 7: Find the correct value for half the window width
     win_width, _ = WINDOW_SIZE
     half_win_width = win_width / 2
 
-    # Objective 8: Uncomment and try out the different camera movements
+    # Objective 7: Uncomment and try out the different camera movements
     # 1. always in center:
     # camera.x = focus.x - half_win_width
 

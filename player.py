@@ -42,6 +42,7 @@ class Player:
             new_vel.x = 0.95 * new_vel.x + 2.0 * direction
         new_vel.x = min(max(new_vel.x, -8), 8)
 
+        # Objective 6: Use the tilemap to shift the player position by velocity
         self.pos, self.vel = tilemap.move_box(
             self.pos, new_vel, PLAYER_SIZE
         )

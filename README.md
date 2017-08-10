@@ -13,10 +13,9 @@
 3. The Game State and Update Method (game.py)
 4. Render Player Texture (player.py)
 5. Physics (player.py)
-6. Reading a File (tilemap.py)
-7. Collision Detection and AABB (tilemap.py)
-8. Camera (game.py)
-9. Stopwatch (stopwatch.py)
+6. Collision Detection and AABB (tilemap.py)
+7. Camera (game.py)
+8. Stopwatch (stopwatch.py)
 
 ##### Givens
 
@@ -32,6 +31,8 @@ New Programming Concepts:
 * Module Variables
 * Local Variables
 * Method (aka. Member Functions)
+
+Step:
 
 1. Choose a title for the window, store it as a string in a module variable
 2. Choose a size for the window, store it as a tuple of two integers in a module variable
@@ -53,6 +54,8 @@ New Game Concepts:
 
 * Game Loop
 
+Step:
+
 1. Instantiate a `Renderer` object, passing the window from Objective 1 as its only argument, and...
 2. Store the created `Renderer` instance in a `renderer` variable in the `main` method
 3. Instantiate a `Color` object with three keyword arguments (`r`, `g`, and `b`), store it in a local variable in the `main` function
@@ -71,6 +74,8 @@ New Game Concepts:
 
 * Frame 
 * Update Method
+
+Steps:
 
 1. Instantiate a `Game` object, passing the `Resources` object as the only argument
 2. In between the `clear` and `present` calls to the `Renderer` object, call the `render` method on the `Game` object. Pass it the appropriate arguments.
@@ -99,6 +104,8 @@ New Graphics Concepts:
 * Point
 * Vector
 * Sprite Sheet
+
+Steps:
 
 1. Find the correct coordinates for the player texture to be drawn
 2. Read the explanation on what is happening to the sprite sheet
@@ -160,6 +167,11 @@ Use a for loop to iterate over and unpack the body parts.
 
 ##### Objective 5: The Tilemap
 
+New Programming Concepts:
+* Reading a File
+
+Steps:
+
 1. Get the path of the tilemap file from the Resources object
 2. Open the file of the tilemap file for reading
 3. Read through each line
@@ -169,13 +181,21 @@ Use a for loop to iterate over and unpack the body parts.
    (i.e. each line adds to the height, the number of numbers in a line is the width)
 7. Read the lookup function for transforming world locations into tiles
 8. Convert from the two dimensional (nx, ny) = (col, row) values back into tiles index for tile lookup
+9. import, create, and add a Tilemap to the Game object
 
-> Bonus: verify that the width is the same in each line
+> Bonus: verify that the width is the same in each line/row of the tilemap
 
 
 ##### Objective 6: Player Physics
 
+New Game Concepts:
+* Collision Detection
+* The AABB
+
+Steps:
+
 1. Call the player update method from the game update method
+2. Use the tilemap to move the player by the new velocity determined by the physics logic
 
 Our physics engine is going to have the following traits:
 * gravity (constant acceleration)
@@ -184,7 +204,34 @@ Our physics engine is going to have the following traits:
 * acceleration-based running 
 * velocity-based jumping
 
-##### Objective 9: Stopwatch
+The physics engine is what determines the feel of the character movement.
+
+Here how ours determines the velocity to apply to the player:
+
+1. If user wants to jump (and we are on the ground) vertical velocity is set to 21 pixels / frame
+2. Gravity is applied every frame to decrease velocity by a 0.75 pixels / frame
+3. If we are on the ground, the horizontal velocity slows to a half of what it was
+4. Otherwise, the horizontal velocity shows to 95% of what it was 
+5. If we are on the ground and the user is moving the horizontal velocity is increased by 4 pixels / frame in that direction
+6. If we are in the air and the user is moving the horizontal velocity is increased by 2 pixels / frame in that direction
+7. The horizonal velocity is capped at 8 pixels / frame
+
+Completing step 2 then does:
+
+8. Modify the player position by the new velocity vector
+9. If any movement along our velocity vector would move us into a solid tile our velocity drops to 0 in that direction, and we move up to the edge of the solid tile in the direction of the vector.
+
+> Bonus: Play with the physics engine components and see what happens
+
+##### Objective 7: Camera
+
+Set up camera movement to follow the player.
+
+Steps:
+* Find the Objective 7 markers in the code and follow directions
+
+
+##### Objective 8: Stopwatch
 
 Augment the `Game` update method.
 
@@ -193,6 +240,14 @@ Augment the `Game` update method.
 3. If the tile type is an end tile, then call stop on the stopwatch
 4. Otherwise, just call step on the stopwatch
 
+
+##### What next?
+
+* Build your own map?
+* Play with the physics engine
+* Change player skin
+* Add a second player... can they race?
+* Double Jump?
 
 #### Based on:
 
