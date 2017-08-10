@@ -33,6 +33,8 @@ class Map:
         y = int(round(pos.y))
         nx = min(max(int(x / TILE_WIDTH), 0), self.width - 1)
         ny = min(max(int(y / TILE_HEIGHT), 0), self.height - 1)
+
+        # Objective 5: Convert from row, col back to tile index
         i = ny * self.width + nx
         return self.tiles[i]
 
@@ -107,6 +109,8 @@ def load_tile_map(resources: Resources) -> Tuple[List[int], int, int]:
     tiles = []
     width = 0
     height = 0
+
+    # Objective 5: Load in tilemap
     file_path = resources.get_path("default.map")
     file = open(file_path, "r")
     for line in file.readlines():

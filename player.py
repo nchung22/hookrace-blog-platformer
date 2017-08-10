@@ -1,6 +1,6 @@
 from basic2d import Point2d, Vector2d
-from copy import copy
 from controller import Controller, Input
+from copy import copy
 from sdl2 import SDL_FLIP_HORIZONTAL, SDL_FLIP_NONE
 from sdl2.ext import Renderer, Resources, SpriteFactory, TextureSprite
 from tilemap import Map
@@ -85,12 +85,14 @@ class Player:
         body_parts = [
             ((192, 64, 64, 32), (x - 60, y,      96, 48), SDL_FLIP_NONE),
             ((192, 32, 64, 32), (x - 60, y,      96, 48), SDL_FLIP_NONE),
-            ((96,   0, 96, 96), (x - 48, y - 48, 96, 96), SDL_FLIP_NONE),
-            ((0,    0, 96, 96), (x - 48, y - 48, 96, 96), SDL_FLIP_NONE),
+            ((96,  0,  96, 96), (x - 48, y - 48, 96, 96), SDL_FLIP_NONE),
+            ((0,   0,  96, 96), (x - 48, y - 48, 96, 96), SDL_FLIP_NONE),
             ((192, 64, 64, 32), (x - 36, y,      96, 48), SDL_FLIP_NONE),
             ((192, 32, 64, 32), (x - 36, y,      96, 48), SDL_FLIP_NONE),
             ((64,  96, 32, 32), (x - 18, y - 21, 36, 36), SDL_FLIP_NONE),
             ((64,  96, 32, 32), (x - 6,  y - 21, 36, 36), SDL_FLIP_HORIZONTAL)
         ]
+
+        # Objective 4: Iterate over the body parts and render each one
         for source, dest, flip in body_parts:
             renderer.copy(texture, source, dest, flip=flip)

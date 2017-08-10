@@ -152,13 +152,37 @@ The parameters are the `texture` followed by the unpacked tuple variables:
 
 The flipped parameter is a keyword argument named `flip`. 
 
+Use a for loop to iterate over and unpack the body parts.
+
 > Bonus: Feel free to tweak the mappings from step 2. and see what happens :)
 
 > Bonus: Get a different player texture here: https://ddnet.tw/skins/
 
-##### Objective 5: Player Physics
+##### Objective 5: The Tilemap
 
-Given... 
+1. Get the path of the tilemap file from the Resources object
+2. Open the file of the tilemap file for reading
+3. Read through each line
+4. For each line split it into the numbers (requires conversion from string to int)
+5. Store each number in the tiles array
+6. Along the way keep track of the width and height of the tilemap
+   (i.e. each line adds to the height, the number of numbers in a line is the width)
+7. Read the lookup function for transforming world locations into tiles
+8. Convert from the two dimensional (nx, ny) = (col, row) values back into tiles index for tile lookup
+
+> Bonus: verify that the width is the same in each line
+
+
+##### Objective 6: Player Physics
+
+1. Call the player update method from the game update method
+
+Our physics engine is going to have the following traits:
+* gravity (constant acceleration)
+* horizontal friction
+* terminal horizontal velocity
+* acceleration-based running 
+* velocity-based jumping
 
 ##### Objective 9: Stopwatch
 

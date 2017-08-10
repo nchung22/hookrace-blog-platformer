@@ -5,8 +5,12 @@ from sdl2 import SDL_RENDERER_ACCELERATED, SDL_RENDERER_PRESENTVSYNC
 from sdl2.ext import Color, Renderer, Resources, Window
 from basic2d import Point2d, Vector2d
 from controller import Input, Controller
-from player import Player
 from stopwatch import Stopwatch
+
+# Objective 4: Import Player from player module
+from player import Player
+
+# Objective 5: Import Map and Tile from tilemap module
 from tilemap import Map, Tile
 
 FRAMES_PER_SECOND = 50
@@ -35,6 +39,7 @@ class Game:
             # Objective 4: Put the player back at the start
             self.player.restart()
 
+        # Objective 6: Call the player update method
         self.player.update(controller, self.map)
 
         # Objective 8: Call the move_camera function with a focus on the player position
@@ -50,8 +55,12 @@ class Game:
             self.stopwatch.step()
 
     def render(self, renderer: Renderer) -> None:
+        # Objective 4: Render the player
         self.player.render(renderer, self.camera)
+
+        # Objective 5: Render the tilemap
         self.map.render(renderer, self.camera)
+
         self.stopwatch.render(renderer)
 
 
@@ -79,9 +88,11 @@ def main() -> int:
     resources = Resources(__file__, "resources")
     controller = Controller()
 
+    # Objective 1: Create and show the Window
     window = Window(WINDOW_TITLE, size=WINDOW_SIZE)
     window.show()
 
+    # Objective 2: Create the Renderer with a background color
     renderer = Renderer(
         window,
         index=-1,
@@ -90,6 +101,7 @@ def main() -> int:
 
     renderer.color = Color(r=110, g=132, b=174)
 
+    # Objective 3: Set up the game
     game = Game(resources)
 
     # Game Loop, draws each frame
@@ -104,12 +116,18 @@ def main() -> int:
         if controller.has_input(Input.QUIT):
             break
 
+        # Objective 3: Update the game the appropriate number of frames
         while lag >= SECONDS_PER_FRAME:
             game.update(controller)
             lag -= SECONDS_PER_FRAME
 
+        # Objective 2: Draw over all drawings of the last frame with the default color
         renderer.clear()
+
+        # Objective 3: Render the game
         game.render(renderer)
+
+        # Objective 2: Show the result on screen
         renderer.present()
 
     sdl2.ext.quit()
