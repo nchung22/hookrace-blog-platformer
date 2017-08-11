@@ -73,6 +73,7 @@ Questions:
 New Game Concepts:
 
 * Frame 
+* Time Step
 * Update Method
 
 Steps:
@@ -81,13 +82,17 @@ Steps:
 2. In between the `clear` and `present` calls to the `Renderer` object, call the `render` method on the `Game` object. Pass it the appropriate arguments.
 3. Before the rendering, call the `update` method the appropriate number of frames.
 
-For step 3. you need to use a `while`-loop, the local `lag` variable, and the `SECONDS_PER_FRAME` module variable.
+For step 3. you need to use a `while`-loop, the local `lag` variable, and the `SECONDS_PER_UPDATE` module variable.
 
-The `lag` variable represents the amount of time in seconds that has yet to be updated. Each time we process a frame, the lag should be decreased by the amount of time that frame represents (i.e. the `SECONDS_PER_FRAME`).
+The `lag` variable represents the amount of time in seconds that has yet to be updated. Each time we process a frame, the lag should be decreased by the amount of time that frame represents (i.e. the `SECONDS_PER_UPDATE`).
 
 > Hint: modify the `lag` variable each time though the loop as appropriate, and use it to check for the finished condition
 
-> Try modifying the `FRAMES_PER_SECOND` variable and see what happens
+> Try modifying the `UPDATES_PER_SECOND` variable and see what happens
+
+Additional Reading:
+
+http://gameprogrammingpatterns.com/game-loop.html
 
 ##### Objective 4: Render Player Texture
 

@@ -13,8 +13,8 @@ from player import Player
 # Objective 5: Import Map and Tile from tilemap module
 from tilemap import Map, Tile
 
-FRAMES_PER_SECOND = 50
-SECONDS_PER_FRAME = 1.0 / FRAMES_PER_SECOND
+UPDATES_PER_SECOND = 50
+SECONDS_PER_UPDATE = 1.0 / UPDATES_PER_SECOND
 
 # Objective 1: Create the title and size variables
 WINDOW_SIZE = (1280, 720)
@@ -118,9 +118,9 @@ def main() -> int:
             break
 
         # Objective 3: Update the game the appropriate number of frames
-        while lag >= SECONDS_PER_FRAME:
+        while lag >= SECONDS_PER_UPDATE:
             game.update(controller)
-            lag -= SECONDS_PER_FRAME
+            lag -= SECONDS_PER_UPDATE
 
         # Objective 2: Draw over all drawings of the last frame with the default color
         renderer.clear()
