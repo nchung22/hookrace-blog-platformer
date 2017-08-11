@@ -13,8 +13,8 @@ from stopwatch import Stopwatch
 # YOUR CODE HERE...
 
 
-FRAMES_PER_SECOND = 50
-SECONDS_PER_FRAME = 1.0 / FRAMES_PER_SECOND
+UPDATES_PER_SECOND = 50
+SECONDS_PER_UPDATE = 1.0 / UPDATES_PER_SECOND
 
 # Objective 1: Create the title and size variables
 # YOUR CODE HERE...
