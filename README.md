@@ -1,4 +1,7 @@
-#### Prerequisites (Ubuntu)
+# HookRace
+In this project you will be building your own 2D game that will read user input, display graphics, and simulate 2D physics!
+
+### Prerequisites (Ubuntu)
 
 * Python 3.6 (or 3.5 with string interpolation via PyPy 5.8)
 * Install SDL2, SDL2_image, SDL2_ttf via `apt`
@@ -6,7 +9,7 @@
 
 > Optional: `mypy`
 
-#### Objectives 
+### Objectives 
 
 1. The Window (game.py)
 2. The Renderer and Game Loop (game.py)
@@ -17,11 +20,14 @@
 7. Camera (game.py)
 8. Stopwatch (stopwatch.py)
 
-##### Givens
+#### Givens
 
 Textbox, Point2d, Vector2d, Controller, Stopwatch
 
-##### Objective 1: The Window
+## Your Challenge
+Follow the steps in each objective to complete your game. You may customize your game to your liking after completing each objective. 
+
+### Objective 1: The Window
 
 New Programming Concepts:
 
@@ -32,16 +38,20 @@ New Programming Concepts:
 * Local Variables
 * Method (aka. Member Functions)
 
-Step:
+**Steps:**
 
 1. Choose a title for the window, store it as a string in a module variable
 2. Choose a size for the window, store it as a tuple of two integers in a module variable
 3. Instantiate a `Window` object, passing the title as the first argument,
    and the size as a named argument with name `size`, and...
 4. Store the created `Window` instance in a `window` variable in the `main` function
-5. Call the `show` method on the `Window` object 
+5. Call the `show` method on the `Window` object
 
-##### Objective 2: The Renderer and Game Loop
+Resources:<br>
+Classes in Python Practice - https://www.learnpython.org/en/Classes_and_Objects<br>
+Sharing variables across files - http://effbot.org/pyfaq/how-do-i-share-global-variables-across-modules.htm
+
+### Objective 2: The Renderer and Game Loop
 
 New Programming Concepts:
 
@@ -54,7 +64,7 @@ New Game Concepts:
 
 * Game Loop
 
-Step:
+**Steps:**
 
 1. Instantiate a `Renderer` object, passing the window from Objective 1 as its only argument, and...
 2. Store the created `Renderer` instance in a `renderer` variable in the `main` method
@@ -68,7 +78,10 @@ Questions:
 
 * When does the game loop exit?
 
-##### Objective 3: The Game State and Update Method
+Resources:<br>
+While Loops in Python - https://pythonschool.net/basics/while-loops/
+
+### Objective 3: The Game State and Update Method
 
 New Game Concepts:
 
@@ -76,7 +89,7 @@ New Game Concepts:
 * Time Step
 * Update Method
 
-Steps:
+**Steps:**
 
 1. Instantiate a `Game` object, passing the `Resources` object as the only argument
 2. In between the `clear` and `present` calls to the `Renderer` object, call the `render` method on the `Game` object. Pass it the appropriate arguments.
@@ -94,7 +107,7 @@ Additional Reading:
 
 http://gameprogrammingpatterns.com/game-loop.html
 
-##### Objective 4: Render Player Texture
+### Objective 4: Render Player Texture
 
 New Programming Concepts:
 
@@ -110,7 +123,7 @@ New Graphics Concepts:
 * Vector
 * Sprite Sheet
 
-Steps:
+**Steps:**
 
 1. Find the correct coordinates for the player texture to be drawn
 2. Read the explanation on what is happening to the sprite sheet
@@ -170,12 +183,12 @@ Use a for loop to iterate over and unpack the body parts.
 
 > Bonus: Get a different player texture here: https://ddnet.tw/skins/
 
-##### Objective 5: The Tilemap
+### Objective 5: The Tilemap
 
 New Programming Concepts:
 * Reading a File
 
-Steps:
+**Steps:**
 
 1. Get the path of the tilemap file from the Resources object
 2. Open the file of the tilemap file for reading
@@ -191,13 +204,13 @@ Steps:
 > Bonus: verify that the width is the same in each line/row of the tilemap
 
 
-##### Objective 6: Player Physics
+### Objective 6: Player Physics
 
 New Game Concepts:
 * Collision Detection
 * The AABB
 
-Steps:
+**Steps:**
 
 1. Call the player update method from the game update method
 2. Use the tilemap to move the player by the new velocity determined by the physics logic
@@ -228,15 +241,15 @@ Completing step 2 then does:
 
 > Bonus: Play with the physics engine components and see what happens
 
-##### Objective 7: Camera
+### Objective 7: Camera
 
 Set up camera movement to follow the player.
 
-Steps:
+**Steps:**
 * Find the Objective 7 markers in the code and follow directions
 
 
-##### Objective 8: Stopwatch
+### Objective 8: Stopwatch
 
 Augment the `Game` update method.
 
@@ -246,7 +259,7 @@ Augment the `Game` update method.
 4. Otherwise, just call step on the stopwatch
 
 
-##### What next?
+### What next?
 
 * Build your own map?
 * Play with the physics engine
@@ -254,7 +267,7 @@ Augment the `Game` update method.
 * Add a second player... can they race?
 * Double Jump?
 
-#### Based on:
+### Based on:
 
 https://pysdl2.readthedocs.io/en/rel_0_9_5/
 
