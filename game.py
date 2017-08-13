@@ -18,6 +18,8 @@ SECONDS_PER_UPDATE = 1.0 / UPDATES_PER_SECOND
 
 # Objective 1: Create the title and size variables
 # YOUR CODE HERE...
+WINDOW_SIZE = (1000,600)
+WINDOW_TITLE = "Timed Run"
 
 
 class Game:
@@ -84,13 +86,18 @@ def main() -> int:
 
     # Objective 1: Create and show the Window
     # YOUR CODE HERE...
+    window = Window(WINDOW_TITLE, WINDOW_SIZE)
+    window.show()
 
     # Objective 2: Create the Renderer with a background color
     # YOUR CODE HERE...
+    renderer = Renderer(window)
+    color = Color(110, 132, 174)
+    renderer.color = color
 
     # Objective 3: Set up the game
     # YOUR CODE HERE...
-
+    game = Game(resources)
     # Game Loop, draws each frame
     last_time = time()
     lag = 0.0
@@ -105,16 +112,20 @@ def main() -> int:
 
         # Objective 3: Update the game the appropriate number of frames
         # YOUR CODE HERE...
+        while lag >= SECONDS_PER_UPDATE:
+            
+            lag -= SECONDS_PER_UPDATE
 
         # Objective 2: Draw over all drawings of the last frame with the default color
         # YOUR CODE HERE...
+        renderer.clear()
 
         # Objective 3: Render the game
         # YOUR CODE HERE...
-
+        game.renderer()
         # Objective 2: Show the result on screen
         # YOUR CODE HERE...
-
+        renderer.present()
     sdl2.ext.quit()
     return 0
 
