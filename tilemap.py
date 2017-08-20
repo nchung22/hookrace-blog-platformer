@@ -35,8 +35,8 @@ class Map:
         ny = min(max(int(y / TILE_HEIGHT), 0), self.height - 1)
 
         # Objective 5: Convert from row, col back to tile index
-        # YOUR CODE HERE...
-        return 0
+
+        return self.tiles[ny * self.width + nx]
 
     def is_solid(self, pos: Point2d) -> bool:
         return self.get_tile(pos) not in {Tile.AIR, Tile.START, Tile.FINISH}
@@ -111,6 +111,16 @@ def load_tile_map(resources: Resources) -> Tuple[List[int], int, int]:
     height = 0
 
     # Objective 5: Load in tilemap
-    # YOUR CODE HERE...
 
+    path = resources.get_path("default.map")
+    file = open(path, "r")
+    for line in file.readlines():
+        row_width = 0
+        for i in line.split(" "):
+            if i == "":
+                continue
+            tiles.append(int(i))
+            row_width += 1
+        height += 1
+        width = row_width
     return tiles, width, height
