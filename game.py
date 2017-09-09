@@ -7,18 +7,18 @@ from controller import Input, Controller
 from stopwatch import Stopwatch
 
 # Objective 4: Import Player from player module
-# YOUR CODE HERE...
+
 from player import Player
 # Objective 5: Import Map and Tile from tilemap module
-#
-from tilemap import Map
+
+from tilemap import Map, Tile
 
 UPDATES_PER_SECOND = 50
 SECONDS_PER_UPDATE = 1.0 / UPDATES_PER_SECOND
 
 # Objective 1: Create the title and size variables
 # YOUR CODE HERE...
-WINDOW_SIZE = (1000,600)
+WINDOW_SIZE = (10000,6000)
 WINDOW_TITLE = "Timed Run"
 
 
@@ -43,12 +43,23 @@ class Game:
             self.player.restart()
         # Objective 6: Call the player update method
         # YOUR CODE HERE...
+        self.player.update(controller, self.map)
 
         # Objective 7: Call the move_camera function with a focus on the player position
         # YOUR CODE HERE...
+        move_camera(self.camera, self.player.pos)
 
         # Objective 8: Update the stopwatch according to the player tile
         # YOUR CODE HERE...
+        value = self.map.get_tile(self.player.pos)
+        if value == Tile.START:
+            self.stopwatch.start()
+        elif value == Tile.FINISH:
+            self.stopwatch.stop()
+        else:
+            self.stopwatch.step()
+
+
 
     def render(self, renderer: Renderer) -> None:
         # Objective 4: Render the player
@@ -64,17 +75,17 @@ class Game:
 def move_camera(camera: Vector2d, focus: Point2d) -> None:
     # Objective 7: Find the correct value for half the window width
     # YOUR CODE HERE...
-    half_win_width = 0
+    half_win_width = 500
 
     # Objective 7: Uncomment and try out the different camera movements
 
-    # 1. always in center:
-    # camera.x = focus.x - half_win_width
+    #1. always in center:
+    camera.x = focus.x - half_win_width
 
     # 2. follow once leaves center:
-    # left_area = focus.x - half_win_width - 100
-    # right_area = focus.x - half_win_width + 100
-    # camera.x = min(max(camera.x, left_area), right_area)
+    #left_area = focus.x - half_win_width - 100
+    #right_area = focus.x - half_win_width + 100
+    #camera.x = min(max(camera.x, left_area), right_area)
 
     # 3. fluid
     # dist = camera.x - focus.x + half_win_width
