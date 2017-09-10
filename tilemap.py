@@ -112,7 +112,7 @@ def load_tile_map(resources: Resources) -> Tuple[List[int], int, int]:
 
     # Objective 5: Load in tilemap
 
-    path = resources.get_path("default.map")
+    path = resources.get_path("def.map")
     file = open(path, "r")
     for line in file.readlines():
         row_width = 0
